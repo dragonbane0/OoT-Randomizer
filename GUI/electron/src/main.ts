@@ -1,13 +1,17 @@
-import { app, BrowserWindow, shell, session, ipcMain, globalShortcut, Menu, MenuItem } from "electron";
+import { app, shell, session, ipcMain, BrowserWindow, globalShortcut, Menu, MenuItem } from "electron";
+
+var win: BrowserWindow;
 import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
 import * as url from "url";
 
 import * as windowStateKeeper from "electron-window-state";
-import * as commander from 'commander';
 
-var win: BrowserWindow;
+var program = require('commander');
+ 
+require('@electron/remote/main').initialize();
+
 var isRelease: boolean = false;
 
 function createApp() {
@@ -24,13 +28,13 @@ function createApp() {
   }
 
   //Parse command line
-  commander
-    .option('p, python <path>', 'Path to your python executable')
-    .option('r, release', 'Runs electron in release mode')
+  program
+    .option('-p, --python [path]', 'Path to your python executable')
+    .option('-r, --release', 'Runs electron in release mode')
     .parse(process.argv);
 
-  global["commandLineArgs"] = commander;
-  isRelease = commander.release || app.isPackaged;
+  global["commandLineArgs"] = program;
+  isRelease = program.release || app.isPackaged;
 
   //Load the previous window state with fallback to defaults
   let mainWindowState = windowStateKeeper({
@@ -39,7 +43,26 @@ function createApp() {
   });
 
   //Browser Window common options
-  let browserOptions = { icon: path.join(__dirname, '../src/assets/icon/png/64x64.png'), title: 'OoT Randomizer GUI', opacity: 1.00, backgroundColor: '#000000', minWidth: 880, minHeight: 680, width: mainWindowState.width, height: mainWindowState.height, x: mainWindowState.x, y: mainWindowState.y, show: false, webPreferences: { nodeIntegration: false, contextIsolation: true, webviewTag: false, preload: path.join(__dirname, 'preload.js') } };
+  let browserOptions = { 
+    icon: path.join(__dirname, '../src/assets/icon/png/64x64.png'), 
+    title: 'OoT Randomizer GUI', 
+    opacity: 1.00, 
+    backgroundColor: '#000000', 
+    minWidth: 880, 
+    minHeight: 680, 
+    width: mainWindowState.width, 
+    height: mainWindowState.height, 
+    x: mainWindowState.x, y: 
+    mainWindowState.y, 
+    show: false, 
+    webPreferences: { 
+      sandbox: false, 
+      nodeIntegration: false, 
+      contextIsolation: true, 
+      webviewTag: false, 
+      preload: path.join(__dirname, 'preload.js') 
+    } 
+  };
 
   //Override menu (only need dev tools shortcut)
   let appMenu = new Menu();
@@ -137,6 +160,10 @@ app.on("activate", () => {
   if (win === null) {
     createApp();
   }
+});
+
+app.on('browser-window-created', (_, window) => {
+  require("@electron/remote/main").enable(window.webContents)
 });
 
 app.on("window-all-closed", () => {
