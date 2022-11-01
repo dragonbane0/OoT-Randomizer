@@ -344,6 +344,10 @@ async function main(commandLine) {
 
     //Verify node_modules
     if (["./node_modules",
+<<<<<<< HEAD
+=======
+        "./node_modules/.bin",
+>>>>>>> upstream/angular-13-dark-mode
         "./node_modules/@angular",
         "./node_modules/electron",
         "./node_modules/commander",
