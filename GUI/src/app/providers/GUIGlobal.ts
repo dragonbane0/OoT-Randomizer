@@ -225,7 +225,12 @@ export class GUIGlobal implements OnDestroy {
     if (!this.getGlobalVar('electronAvailable'))
       throw Error("electron_not_available");
 
-    let event = await post.send(window, 'createAndOpenPath', path);
+    let event = await post.send(window, 'createAndOpenPath', path)
+    .catch(e => console.log("ignore this for now", e));
+    
+    if (!event || !event.data)
+      throw Error("The specified output directory does not exist!");
+
     let res = event.data;
 
     if (res == true)
