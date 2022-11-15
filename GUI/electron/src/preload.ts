@@ -154,7 +154,7 @@ post.on('browseForDirectory', function (event) {
   return remote.dialog.showOpenDialogSync({ properties: ["openDirectory", "createDirectory", "treatPackageAsDirectory"] });
 });
 
-post.on('createAndOpenPath', async function (event) {
+post.on('createAndOpenPath', function (event) {
 
   let data = event.data;
 
@@ -173,12 +173,14 @@ post.on('createAndOpenPath', async function (event) {
   }
   else {
     fs.mkdirSync(data);
-    let openedPath = await remote.shell.openPath(data);
-    if (openedPath == "")
-      return true;
-    return openedPath;
+
+    remote.shell.openPath(data).then(res => {
+      post.send(window, 'createAndOpenPathResult', res);
+    });
+
+    return false;
   }
-})
+});
 
 post.on('window-minimize', function (event) {
   remote.getCurrentWindow().minimize();

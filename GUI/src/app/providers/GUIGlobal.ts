@@ -225,15 +225,35 @@ export class GUIGlobal implements OnDestroy {
     if (!this.getGlobalVar('electronAvailable'))
       throw Error("electron_not_available");
 
-    let event = await post.send(window, 'createAndOpenPath', path)
-    .catch(e => console.log("ignore this for now", e));
-    
-    if (!event || !event.data)
+    let event = null;
+
+    try {
+      event = await post.send(window, 'createAndOpenPath', path);
+    } catch (ex) {
+      console.error(ex);
+    }
+
+    if (event == null)
       throw Error("The specified output directory does not exist!");
 
-    let res = event.data;
+    //If folder already existed, we get a quick sync exit, otherwise wait for async callback that the folder was created and opened
+    let status = event.data;
 
-    if (res == true)
+    if (status)
+      return true;
+
+    let response = await new Promise(function (resolve, reject) {
+
+      var listenerResult = post.once('createAndOpenPathResult', function (res) {
+
+        listenerResult.cancel();
+
+        let data = res.data;
+        resolve(data);
+      });
+    });
+
+    if (response === "")
       return true;
     else
       throw Error("path_not_opened");
