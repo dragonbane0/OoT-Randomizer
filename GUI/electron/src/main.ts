@@ -1,6 +1,4 @@
 import { app, shell, session, ipcMain, BrowserWindow, globalShortcut, Menu, MenuItem } from "electron";
-
-var win: BrowserWindow;
 import * as os from "os";
 import * as fs from "fs";
 import * as path from "path";
@@ -8,15 +6,14 @@ import * as url from "url";
 
 import * as windowStateKeeper from "electron-window-state";
 
-var program = require('commander');
- 
 require('@electron/remote/main').initialize();
 
+var win: BrowserWindow;
 var isRelease: boolean = false;
 
 function createApp() {
 
-  //Fix up empty node command line in bundled mode (crashes commander otherwise)
+  //Fix up empty node command line in bundled mode
   if (app.isPackaged) {
     process.argv[0] = 'main.js';
     process.argv.unshift('node');
@@ -28,13 +25,21 @@ function createApp() {
   }
 
   //Parse command line
-  program
-    .option('-p, --python [path]', 'Path to your python executable')
-    .option('-r, --release', 'Runs electron in release mode')
-    .parse(process.argv);
+  let programOpts: any = {};
 
-  global["commandLineArgs"] = program;
-  isRelease = program.release || app.isPackaged;
+  for (let i = 0; i < process.argv.length; i++) {
+    let arg = process.argv[i];
+
+    if (arg === "r" || arg === "release") {
+      programOpts["release"] = true;
+    }
+    else if ((arg === "p" || arg === "python") && i < (process.argv.length - 1)) {
+      programOpts["python"] = process.argv[++i];
+    }
+  }
+
+  global["commandLineArgs"] = programOpts;
+  isRelease = programOpts.release || app.isPackaged;
 
   //Load the previous window state with fallback to defaults
   let mainWindowState = windowStateKeeper({

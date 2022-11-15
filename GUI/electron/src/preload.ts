@@ -5,7 +5,7 @@ import * as path from 'path';
 
 import * as post from 'post-robot';
 
-const remote = require('@electron/remote')
+const remote = require('@electron/remote');
 const generator = remote.require(path.join(__dirname, '../src/modules/generator.js'));
 const commander = remote.getGlobal("commandLineArgs");
 

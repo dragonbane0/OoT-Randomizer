@@ -86,7 +86,6 @@
   },
   "dependencies": {
     "@electron/remote": "^2.0.8",
-    "commander": "9.4.1",
     "electron-window-state": "5.0.3",
     "post-robot": "https://github.com/dragonbane0/post-robot/tarball/dad59c1c0f6266d0dd4bd35e0fb7137d45c6c773",
     "tree-kill": "1.2.1",
