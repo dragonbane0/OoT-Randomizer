@@ -30,10 +30,10 @@ function createApp() {
   for (let i = 0; i < process.argv.length; i++) {
     let arg = process.argv[i];
 
-    if (arg === "r" || arg === "release") {
+    if (arg === "r" || arg === "release") { //Runs electron in release mode
       programOpts["release"] = true;
     }
-    else if ((arg === "p" || arg === "python") && i < (process.argv.length - 1)) {
+    else if ((arg === "p" || arg === "python") && i < (process.argv.length - 1)) { //Path to the python executable
       programOpts["python"] = process.argv[++i];
     }
   }
